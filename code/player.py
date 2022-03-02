@@ -7,12 +7,12 @@ from code.support import ImportFolder
 
 
 class PlayerStatus(Enum):
-    IDLE = 0
-    UP = 1
-    DOWN = 2
-    RIGHT = 3
-    LEFT = 4
-    ATTACKING = 5
+    IDLE = 0, "idle"
+    UP = 1, "up"
+    DOWN = 2, "down"
+    RIGHT = 3, "right"
+    LEFT = 4, "left"
+    ATTACKING = 5, "attack"
     MAGIC = 6
 
 
@@ -23,7 +23,7 @@ class StatusManager:
 
     @property
     def value(self):
-        return self.status
+        return "_".join([str(status.value[1]) for status in self.status])
 
     def up(self):
         self.status = []
