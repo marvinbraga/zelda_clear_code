@@ -13,6 +13,10 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.speed = 5
 
+        self.attacking = False
+        self.attack_cooldown = 400
+        self.attack_time = None
+
     def undo(self):
         self.rect = self.rect_undo.copy()
         self.hit_box = self.hit_box_undo.copy()
@@ -36,6 +40,23 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
+        if not self.attacking:
+            if keys[pygame.K_SPACE]:
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                print("Attack")
+            if keys[pygame.K_LCTRL]:
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                print("Magic")
+
+    def cool_downs(self):
+        current_time = pygame.time.get_ticks()
+        if self.attacking:
+            if current_time - self.attack_time >= self.attack_cooldown:
+                self.attacking = False
+        return self
+
     def move(self, speed):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
@@ -52,4 +73,5 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.input()
+        self.cool_downs()
         self.move(self.speed)
