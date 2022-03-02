@@ -61,6 +61,9 @@ class StatusManager:
                 if self.check(PlayerStatus.IDLE):
                     self.status.remove(PlayerStatus.IDLE)
                 self.add(PlayerStatus.ATTACKING)
+        else:
+            if self.check(PlayerStatus.ATTACKING):
+                self.status.remove(PlayerStatus.ATTACKING)
         return self
 
     def check(self, status):
