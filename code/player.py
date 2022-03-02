@@ -1,14 +1,21 @@
+import os
+
 import pygame
+
+from code.support import ImportFolder
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, *groups):
         super().__init__(*groups)
+        self.animations = {}
         self.image = pygame.image.load('../graphics/test/player.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
         self.hit_box = self.rect.inflate(0, -26)
         self.rect_undo = self.rect.copy()
         self.hit_box_undo = self.hit_box.copy()
+
+        self.import_player_assets()
 
         self.direction = pygame.math.Vector2()
         self.speed = 5
@@ -21,6 +28,17 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.rect_undo.copy()
         self.hit_box = self.hit_box_undo.copy()
         return self
+
+    def import_player_assets(self):
+        character_path = "../graphics/player/"
+        self.animations = {
+            'up': [], 'down': [], 'left': [], 'right': [],
+            'right_idle': [], 'left_idle': [], 'up_idle': [], 'down_idle': [],
+            'right_attack': [], 'left_attack': [], 'up_attack': [], 'down_attack': []
+        }
+        for animation in self.animations.keys():
+            full_path = os.path.normpath(os.path.join(character_path, animation))
+            self.animations[animation] = ImportFolder.load(full_path)
 
     def input(self):
         self.rect_undo = self.rect.copy()
