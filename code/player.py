@@ -45,11 +45,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.center += self.direction * speed
 
     def is_tile_collision(self, group):
-        is_collide = []
-        for sprite in group:
-            if sprite.hit_box.colliderect(self.hit_box):
-                is_collide.append(sprite)
-                self.undo()
+        is_collide = [sprite for sprite in group if sprite.hit_box.colliderect(self.hit_box)]
+        if is_collide:
+            self.undo()
         return is_collide
 
     def update(self):

@@ -4,7 +4,6 @@ import pygame
 
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
-from debug import debug
 from player import Player
 from tile import Tile
 
@@ -42,7 +41,7 @@ class Level:
                         y = row_index * TILE_SIZE
 
                         if style == "boundary":
-                            Tile((x, y), (self.obstacle_sprites, ), "invisible")
+                            Tile((x, y), (self.obstacle_sprites,), "invisible")
                         elif style == "grass":
                             random_grass_image = choice(graphics["grass"])
                             Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'grass', random_grass_image)
@@ -50,14 +49,13 @@ class Level:
                             surf = graphics["objects"][int(col)]
                             Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'object', surf)
 
-        self.player = Player((2000, 1430), *(self.visible_sprites, ))
+        self.player = Player((2000, 1430), *(self.visible_sprites,))
 
     def run(self):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.check_tiles()
-        debug(self.player.direction)
 
     def check_tiles(self):
         self.player.is_tile_collision(group=self.obstacle_sprites)
