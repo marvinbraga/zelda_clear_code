@@ -20,6 +20,7 @@ class StatusManager:
     def __init__(self, player):
         self.player = player
         self.status = []
+        self.down()
 
     @property
     def value(self):
@@ -80,6 +81,8 @@ class Player(pygame.sprite.Sprite):
         self.rect_undo = self.rect.copy()
         self.hit_box_undo = self.hit_box.copy()
         self.status = StatusManager(self)
+        self.index = 0
+        self.animation_speed = 0.15
 
         self.import_player_assets()
 
@@ -132,11 +135,9 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_SPACE]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
-                print("Attack")
             if keys[pygame.K_LCTRL]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
-                print("Magic")
 
     def get_status(self):
         self.status.update()
@@ -147,6 +148,14 @@ class Player(pygame.sprite.Sprite):
             if current_time - self.attack_time >= self.attack_cooldown:
                 self.attacking = False
         return self
+
+    def animate(self):
+        animation = self.animations[self.status.value]
+        self.index += self.animation_speed
+        if self.index >= len(animation):
+            self.index = 0
+        self.image = animation[int(self.index)]
+        self.rect = self.image.get_rect(center=self.hit_box.center)
 
     def move(self, speed):
         if self.direction.magnitude() != 0:
@@ -166,4 +175,5 @@ class Player(pygame.sprite.Sprite):
         self.input()
         self.cool_downs()
         self.get_status()
+        self.animate()
         self.move(self.speed)
