@@ -112,26 +112,26 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         self.rect_undo = self.rect.copy()
         self.hit_box_undo = self.hit_box.copy()
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
-            self.direction.y = -1
-            self.status.up()
-        elif keys[pygame.K_DOWN]:
-            self.direction.y = 1
-            self.status.down()
-        else:
-            self.direction.y = 0
-
-        if keys[pygame.K_RIGHT]:
-            self.direction.x = 1
-            self.status.right()
-        elif keys[pygame.K_LEFT]:
-            self.direction.x = -1
-            self.status.left()
-        else:
-            self.direction.x = 0
-
         if not self.attacking:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_UP]:
+                self.direction.y = -1
+                self.status.up()
+            elif keys[pygame.K_DOWN]:
+                self.direction.y = 1
+                self.status.down()
+            else:
+                self.direction.y = 0
+
+            if keys[pygame.K_RIGHT]:
+                self.direction.x = 1
+                self.status.right()
+            elif keys[pygame.K_LEFT]:
+                self.direction.x = -1
+                self.status.left()
+            else:
+                self.direction.x = 0
+
             if keys[pygame.K_SPACE]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
