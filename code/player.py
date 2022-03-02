@@ -29,47 +29,47 @@ class StatusManager:
 
     def up(self):
         self.status = []
-        self.add(PlayerStatus.UP)
+        self._add(PlayerStatus.UP)
         return self
 
     def down(self):
         self.status = []
-        self.add(PlayerStatus.DOWN)
+        self._add(PlayerStatus.DOWN)
         return self
 
     def right(self):
         self.status = []
-        self.add(PlayerStatus.RIGHT)
+        self._add(PlayerStatus.RIGHT)
         return self
 
     def left(self):
         self.status = []
-        self.add(PlayerStatus.LEFT)
+        self._add(PlayerStatus.LEFT)
         return self
 
-    def add(self, status):
-        if not self.check(status):
+    def _add(self, status):
+        if not self._check(status):
             self.status.append(status)
         return self
 
+    def _check(self, status):
+        return status in self.status
+
     def update(self):
         if self.player.direction.x == 0 and self.player.direction.y == 0:
-            if not self.check(PlayerStatus.IDLE) and not self.check(PlayerStatus.ATTACKING):
-                self.add(PlayerStatus.IDLE)
+            if not self._check(PlayerStatus.IDLE) and not self._check(PlayerStatus.ATTACKING):
+                self._add(PlayerStatus.IDLE)
         if self.player.attacking:
             self.player.direction.x = 0
             self.player.direction.y = 0
-            if not self.check(PlayerStatus.ATTACKING):
-                if self.check(PlayerStatus.IDLE):
+            if not self._check(PlayerStatus.ATTACKING):
+                if self._check(PlayerStatus.IDLE):
                     self.status.remove(PlayerStatus.IDLE)
-                self.add(PlayerStatus.ATTACKING)
+                self._add(PlayerStatus.ATTACKING)
         else:
-            if self.check(PlayerStatus.ATTACKING):
+            if self._check(PlayerStatus.ATTACKING):
                 self.status.remove(PlayerStatus.ATTACKING)
         return self
-
-    def check(self, status):
-        return status in self.status
 
 
 class Player(pygame.sprite.Sprite):
@@ -78,7 +78,7 @@ class Player(pygame.sprite.Sprite):
         self.animations = {}
         self.image = pygame.image.load('../graphics/test/player.png').convert_alpha()
         self.rect = self.image.get_rect(topleft=pos)
-        self.hit_box = self.rect.inflate(0, -26)
+        self.hit_box = self.rect.inflate(-4, -26)
         self.rect_undo = self.rect.copy()
         self.hit_box_undo = self.hit_box.copy()
         self.status = StatusManager(self)
@@ -172,9 +172,7 @@ class Player(pygame.sprite.Sprite):
 
     def animate(self):
         animation = self.animations[self.status.value]
-        self.index += self.animation_speed
-        if self.index >= len(animation):
-            self.index = 0
+        self.index = (self.index + self.animation_speed) % len(animation)
         self.image = animation[int(self.index)]
         self.rect = self.image.get_rect(center=self.hit_box.center)
 
