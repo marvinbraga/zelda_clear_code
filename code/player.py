@@ -1,8 +1,70 @@
 import os
+from enum import Enum
 
 import pygame
 
 from code.support import ImportFolder
+
+
+class PlayerStatus(Enum):
+    IDLE = 0
+    UP = 1
+    DOWN = 2
+    RIGHT = 3
+    LEFT = 4
+    ATTACKING = 5
+    MAGIC = 6
+
+
+class StatusManager:
+    def __init__(self, player):
+        self.player = player
+        self.status = []
+
+    @property
+    def value(self):
+        return self.status
+
+    def up(self):
+        self.status = []
+        self.add(PlayerStatus.UP)
+        return self
+
+    def down(self):
+        self.status = []
+        self.add(PlayerStatus.DOWN)
+        return self
+
+    def right(self):
+        self.status = []
+        self.add(PlayerStatus.RIGHT)
+        return self
+
+    def left(self):
+        self.status = []
+        self.add(PlayerStatus.LEFT)
+        return self
+
+    def add(self, status):
+        if not self.check(status):
+            self.status.append(status)
+        return self
+
+    def update(self):
+        if self.player.direction.x == 0 and self.player.direction.y == 0:
+            if not self.check(PlayerStatus.IDLE) and not self.check(PlayerStatus.ATTACKING):
+                self.add(PlayerStatus.IDLE)
+        if self.player.attacking:
+            self.player.direction.x = 0
+            self.player.direction.y = 0
+            if not self.check(PlayerStatus.ATTACKING):
+                if self.check(PlayerStatus.IDLE):
+                    self.status.remove(PlayerStatus.IDLE)
+                self.add(PlayerStatus.ATTACKING)
+        return self
+
+    def check(self, status):
+        return status in self.status
 
 
 class Player(pygame.sprite.Sprite):
@@ -14,6 +76,7 @@ class Player(pygame.sprite.Sprite):
         self.hit_box = self.rect.inflate(0, -26)
         self.rect_undo = self.rect.copy()
         self.hit_box_undo = self.hit_box.copy()
+        self.status = StatusManager(self)
 
         self.import_player_assets()
 
@@ -46,15 +109,19 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.direction.y = -1
+            self.status.up()
         elif keys[pygame.K_DOWN]:
             self.direction.y = 1
+            self.status.down()
         else:
             self.direction.y = 0
 
         if keys[pygame.K_RIGHT]:
             self.direction.x = 1
+            self.status.right()
         elif keys[pygame.K_LEFT]:
             self.direction.x = -1
+            self.status.left()
         else:
             self.direction.x = 0
 
@@ -67,6 +134,9 @@ class Player(pygame.sprite.Sprite):
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 print("Magic")
+
+    def get_status(self):
+        self.status.update()
 
     def cool_downs(self):
         current_time = pygame.time.get_ticks()
@@ -92,4 +162,5 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.input()
         self.cool_downs()
+        self.get_status()
         self.move(self.speed)

@@ -2,6 +2,7 @@ from random import choice
 
 import pygame
 
+from code.debug import debug
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
 from player import Player
@@ -56,6 +57,7 @@ class Level:
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.check_tiles()
+        debug(self.player.status.value)
 
     def check_tiles(self):
         self.player.is_tile_collision(group=self.obstacle_sprites)
