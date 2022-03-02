@@ -2,9 +2,9 @@ from random import choice
 
 import pygame
 
-from code.debug import debug
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
+from code.weapon import Weapon
 from player import Player
 from tile import Tile
 
@@ -20,6 +20,7 @@ class Level:
         self.visible_sprites = YSortCameraGroup()
         self.obstacle_sprites = pygame.sprite.Group()
 
+        self.current_attack = None
         # sprite setup
         self.create_map()
 
@@ -50,14 +51,21 @@ class Level:
                             surf = graphics["objects"][int(col)]
                             Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'object', surf)
 
-        self.player = Player((2000, 1430), *(self.visible_sprites,))
+        self.player = Player((2000, 1430), self.create_attack, self.destroy_attack, (self.visible_sprites,))
 
     def run(self):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.check_tiles()
-        debug(self.player.status.value)
+
+    def create_attack(self):
+        self.current_attack = Weapon(self.player, (self.visible_sprites, ))
+
+    def destroy_attack(self):
+        if self.current_attack:
+            self.current_attack.kill()
+        self.current_attack = None
 
     def check_tiles(self):
         self.player.is_tile_collision(group=self.obstacle_sprites)
