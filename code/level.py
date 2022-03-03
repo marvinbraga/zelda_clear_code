@@ -4,6 +4,7 @@ import pygame
 
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
+from code.ui import UI
 from code.weapon import Weapon
 from player import Player
 from tile import Tile
@@ -23,6 +24,9 @@ class Level:
         self.current_attack = None
         # sprite setup
         self.create_map()
+
+        # user interface
+        self.ui = UI()
 
     def create_map(self):
         layouts = {
@@ -58,6 +62,7 @@ class Level:
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.check_tiles()
+        self.ui.display(self.player)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, (self.visible_sprites, ))
