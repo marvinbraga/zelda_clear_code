@@ -4,7 +4,7 @@ from code.settings import ENERGY_BAR_WIDTH, UI_FONT, UI_FONT_SIZE, HEALTH_BAR_WI
     weapon_data, UI_BG_COLOR, TEXT_COLOR, ITEM_BOX_SIZE, UI_BORDER_COLOR_ACTIVE, HEALTH_COLOR, ENERGY_COLOR
 
 
-class UI:
+class PlayerUiData:
     def __init__(self):
 
         # general

@@ -4,7 +4,7 @@ import pygame
 
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
-from code.ui import UI
+from code.player_ui_data import PlayerUiData
 from code.weapon import Weapon
 from player import Player
 from tile import Tile
@@ -26,7 +26,7 @@ class Level:
         self.create_map()
 
         # user interface
-        self.ui = UI()
+        self.ui = PlayerUiData()
 
     def create_map(self):
         layouts = {
