@@ -1,83 +1,18 @@
 import os
-from enum import Enum
 
 import pygame
 
 from code.entity import Entity
 from code.settings import weapon_data, magic_data
+from code.status_manager import PlayerStatusManager
 from code.support import ImportFolder
-
-
-class PlayerStatus(Enum):
-    IDLE = 0, "idle"
-    UP = 1, "up"
-    DOWN = 2, "down"
-    RIGHT = 3, "right"
-    LEFT = 4, "left"
-    ATTACKING = 5, "attack"
-    MAGIC = 6
-
-
-class StatusManager:
-    def __init__(self, player):
-        self.player = player
-        self.status = []
-        self.down()
-
-    @property
-    def value(self):
-        return "_".join([str(status.value[1]) for status in self.status])
-
-    def up(self):
-        self.status = []
-        self._add(PlayerStatus.UP)
-        return self
-
-    def down(self):
-        self.status = []
-        self._add(PlayerStatus.DOWN)
-        return self
-
-    def right(self):
-        self.status = []
-        self._add(PlayerStatus.RIGHT)
-        return self
-
-    def left(self):
-        self.status = []
-        self._add(PlayerStatus.LEFT)
-        return self
-
-    def _add(self, status):
-        if not self._check(status):
-            self.status.append(status)
-        return self
-
-    def _check(self, status):
-        return status in self.status
-
-    def update(self):
-        if self.player.direction.x == 0 and self.player.direction.y == 0:
-            if not self._check(PlayerStatus.IDLE) and not self._check(PlayerStatus.ATTACKING):
-                self._add(PlayerStatus.IDLE)
-        if self.player.attacking:
-            self.player.direction.x = 0
-            self.player.direction.y = 0
-            if not self._check(PlayerStatus.ATTACKING):
-                if self._check(PlayerStatus.IDLE):
-                    self.status.remove(PlayerStatus.IDLE)
-                self._add(PlayerStatus.ATTACKING)
-        else:
-            if self._check(PlayerStatus.ATTACKING):
-                self.status.remove(PlayerStatus.ATTACKING)
-        return self
 
 
 class Player(Entity):
     def __init__(self, pos, create_attack, destroy_attack, create_magic, destroy_magic, groups):
         super().__init__(pos, '../graphics/test/player.png', groups)
         self.animations = {}
-        self.status = StatusManager(self)
+        self.status = PlayerStatusManager(self)
 
         self.import_player_assets()
 
@@ -120,8 +55,7 @@ class Player(Entity):
             self.animations[animation] = ImportFolder.load(full_path)
 
     def input(self):
-        self.rect_undo = self.rect.copy()
-        self.hit_box_undo = self.hit_box.copy()
+        self.update_undo()
         if not self.attacking:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:

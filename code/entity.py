@@ -25,6 +25,11 @@ class Entity(pygame.sprite.Sprite):
             self.hit_box_undo = self.hit_box.copy()
         return self
 
+    def update_undo(self):
+        self.rect_undo = self.rect.copy()
+        self.hit_box_undo = self.hit_box.copy()
+        return self
+
     def undo(self):
         self.rect = self.rect_undo.copy()
         self.hit_box = self.hit_box_undo.copy()
