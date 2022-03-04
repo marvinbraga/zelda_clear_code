@@ -55,7 +55,12 @@ class Level:
                             surf = graphics["objects"][int(col)]
                             Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'object', surf)
 
-        self.player = Player((2000, 1430), self.create_attack, self.destroy_attack, (self.visible_sprites,))
+        self.player = Player(
+            (2000, 1430),
+            self.create_attack, self.destroy_attack,
+            self.create_magic, self.destroy_magic,
+            (self.visible_sprites,)
+        )
 
     def run(self):
         # update and draw the game
@@ -71,6 +76,13 @@ class Level:
         if self.current_attack:
             self.current_attack.kill()
         self.current_attack = None
+
+    def create_magic(self, style, strength, cost):
+        print(f"style: {style}, strength: {strength}, cost: {cost}")
+        return self
+
+    def destroy_magic(self):
+        pass
 
     def check_tiles(self):
         self.player.is_tile_collision(group=self.obstacle_sprites)

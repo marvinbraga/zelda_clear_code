@@ -1,7 +1,7 @@
 import pygame
 
 from code.settings import ENERGY_BAR_WIDTH, UI_FONT, UI_FONT_SIZE, HEALTH_BAR_WIDTH, BAR_HEIGHT, UI_BORDER_COLOR, \
-    weapon_data, UI_BG_COLOR, TEXT_COLOR, ITEM_BOX_SIZE, UI_BORDER_COLOR_ACTIVE, HEALTH_COLOR, ENERGY_COLOR
+    weapon_data, UI_BG_COLOR, TEXT_COLOR, ITEM_BOX_SIZE, UI_BORDER_COLOR_ACTIVE, HEALTH_COLOR, ENERGY_COLOR, magic_data
 
 
 class PlayerUiData:
@@ -16,11 +16,16 @@ class PlayerUiData:
         self.energy_bar_rect = pygame.Rect(10, 34, ENERGY_BAR_WIDTH, BAR_HEIGHT)
 
         # convert weapon dictionary
-        self.weapon_graphics = []
-        for weapon in weapon_data.values():
-            path = weapon['graphic']
-            weapon = pygame.image.load(path).convert_alpha()
-            self.weapon_graphics.append(weapon)
+        self.weapon_graphics = [
+            pygame.image.load(weapon['graphic']).convert_alpha()
+            for weapon in weapon_data.values()
+        ]
+
+        # convert magic dictionary
+        self.magic_graphics = [
+            pygame.image.load(magic['graphic']).convert_alpha()
+            for magic in magic_data.values()
+        ]
 
     def show_bar(self, current, max_amount, bg_rect, color):
         # draw bg
@@ -62,6 +67,13 @@ class PlayerUiData:
 
         self.display_surface.blit(weapon_surf, weapon_rect)
 
+    def magic_overlay(self, magic_index, has_switched):
+        bg_rect = self.selection_box(80, 635, has_switched)
+        magic_surf = self.magic_graphics[magic_index]
+        magic_rect = magic_surf.get_rect(center=bg_rect.center)
+
+        self.display_surface.blit(magic_surf, magic_rect)
+
     def display(self, player):
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
@@ -69,4 +81,4 @@ class PlayerUiData:
         self.show_exp(player.exp)
 
         self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
-        # self.selection_box(80,635) # magic
+        self.magic_overlay(player.magic_index, not player.can_switch_magic)
