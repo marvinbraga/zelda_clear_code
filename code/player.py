@@ -3,6 +3,7 @@ from enum import Enum
 
 import pygame
 
+from code.entity import Entity
 from code.settings import weapon_data, magic_data
 from code.support import ImportFolder
 
@@ -72,22 +73,13 @@ class StatusManager:
         return self
 
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, pos, create_attack, destroy_attack, create_magic, destroy_magic, groups):
-        super().__init__(*groups)
+        super().__init__(pos, '../graphics/test/player.png', groups)
         self.animations = {}
-        self.image = pygame.image.load('../graphics/test/player.png').convert_alpha()
-        self.rect = self.image.get_rect(topleft=pos)
-        self.hit_box = self.rect.inflate(-4, -26)
-        self.rect_undo = self.rect.copy()
-        self.hit_box_undo = self.hit_box.copy()
         self.status = StatusManager(self)
-        self.index = 0
-        self.animation_speed = 0.15
 
         self.import_player_assets()
-
-        self.direction = pygame.math.Vector2()
 
         self.attacking = False
         self.attack_cooldown = 400
@@ -115,11 +107,6 @@ class Player(pygame.sprite.Sprite):
         self.energy = self.stats['energy'] * 0.8
         self.exp = 123
         self.speed = self.stats['speed']
-
-    def undo(self):
-        self.rect = self.rect_undo.copy()
-        self.hit_box = self.hit_box_undo.copy()
-        return self
 
     def import_player_assets(self):
         character_path = "../graphics/player/"
@@ -204,20 +191,6 @@ class Player(pygame.sprite.Sprite):
         self.index = (self.index + self.animation_speed) % len(animation)
         self.image = animation[int(self.index)]
         self.rect = self.image.get_rect(center=self.hit_box.center)
-
-    def move(self, speed):
-        if self.direction.magnitude() != 0:
-            self.direction = self.direction.normalize()
-
-        self.hit_box.x += self.direction.x * speed
-        self.hit_box.y += self.direction.y * speed
-        self.rect.center += self.direction * speed
-
-    def is_tile_collision(self, group):
-        is_collide = [sprite for sprite in group if sprite.hit_box.colliderect(self.hit_box)]
-        if is_collide:
-            self.undo()
-        return is_collide
 
     def update(self):
         self.input()
