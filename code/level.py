@@ -23,6 +23,9 @@ class Level:
         self.obstacle_sprites = pygame.sprite.Group()
 
         self.current_attack = None
+        self.attack_sprites = pygame.sprite.Group()
+        self.attackable_sprites = pygame.sprite.Group()
+
         # sprite setup
         self.create_map()
 
@@ -52,7 +55,11 @@ class Level:
                             Tile((x, y), (self.obstacle_sprites,), "invisible")
                         elif style == "grass":
                             random_grass_image = choice(graphics["grass"])
-                            Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'grass', random_grass_image)
+                            Tile(
+                                (x, y),
+                                (self.visible_sprites, self.obstacle_sprites, self.attackable_sprites),
+                                'grass', random_grass_image
+                            )
                         elif style == "object":
                             surf = graphics["objects"][int(col)]
                             Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'object', surf)
@@ -65,7 +72,16 @@ class Level:
                                     (self.visible_sprites,)
                                 )
                             else:
-                                Enemy((x, y), EnemyType.SQUID, (self.visible_sprites,))
+                                enemy_type = {
+                                    "390": EnemyType.BAMBOO,
+                                    "391": EnemyType.SPIRIT,
+                                    "392": EnemyType.RACCOON,
+                                    "393": EnemyType.SQUID,
+                                }[col]
+                                Enemy(
+                                    (x, y), enemy_type, self.damage_player,
+                                    (self.visible_sprites, self.attackable_sprites)
+                                )
 
     def run(self):
         # update and draw the game
@@ -76,7 +92,7 @@ class Level:
         self.ui.display(self.player)
 
     def create_attack(self):
-        self.current_attack = Weapon(self.player, (self.visible_sprites,))
+        self.current_attack = Weapon(self.player, (self.visible_sprites, self.attack_sprites))
 
     def destroy_attack(self):
         if self.current_attack:
@@ -92,6 +108,24 @@ class Level:
 
     def check_tiles(self):
         self.player.is_tile_collision(group=self.obstacle_sprites)
+
+    def player_attack_logic(self):
+        if self.attack_sprites:
+            for attack_sprite in self.attack_sprites:
+                collision_sprites = pygame.sprite.spritecollide(attack_sprite, self.attackable_sprites, False)
+                if collision_sprites:
+                    for target_sprite in collision_sprites:
+                        if isinstance(target_sprite, Tile) and target_sprite.sprite_type == 'grass':
+                            target_sprite.kill()
+                        else:
+                            target_sprite.get_damage(self.player, attack_sprite.sprite_type)
+
+    def damage_player(self, amount, attack_type):
+        if self.player.vulnerable:
+            self.player.health -= amount
+            self.player.vulnerable = False
+            self.player.hurt_time = pygame.time.get_ticks()
+        # spawn particles
 
 
 class YSortCameraGroup(pygame.sprite.Group):
