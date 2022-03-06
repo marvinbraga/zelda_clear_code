@@ -89,6 +89,7 @@ class Level:
         self.visible_sprites.update()
         self.check_tiles()
         self.visible_sprites.enemy_update(self.player)
+        self.player_attack_logic()
         self.ui.display(self.player)
 
     def create_attack(self):
