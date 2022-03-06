@@ -1,8 +1,9 @@
-from random import choice
+from random import choice, randint
 
 import pygame
 
 from code.enemy import Enemy, EnemyType
+from code.particles import AnimationPlayer
 from code.player_ui_data import PlayerUiData
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
@@ -31,6 +32,9 @@ class Level:
 
         # user interface
         self.ui = PlayerUiData()
+
+        # particles
+        self.animation_player = AnimationPlayer()
 
     def create_map(self):
         layouts = {
@@ -79,7 +83,7 @@ class Level:
                                     "393": EnemyType.SQUID,
                                 }[col]
                                 Enemy(
-                                    (x, y), enemy_type, self.damage_player,
+                                    (x, y), enemy_type, self.damage_player, self.trigger_death_particles,
                                     (self.visible_sprites, self.attackable_sprites)
                                 )
 
@@ -117,6 +121,11 @@ class Level:
                 if collision_sprites:
                     for target_sprite in collision_sprites:
                         if isinstance(target_sprite, Tile) and target_sprite.sprite_type == 'grass':
+                            offset = pygame.math.Vector2(0, 75)
+                            for leaf in range(randint(3, 6)):
+                                self.animation_player.create_grass_particles(
+                                    target_sprite.rect.center - offset, (self.visible_sprites, )
+                                )
                             target_sprite.kill()
                         else:
                             target_sprite.get_damage(self.player, attack_sprite.sprite_type)
@@ -126,7 +135,13 @@ class Level:
             self.player.health -= amount
             self.player.vulnerable = False
             self.player.hurt_time = pygame.time.get_ticks()
-        # spawn particles
+            # spawn particles
+            self.animation_player.create_particles(
+                attack_type, self.player.rect.center, (self.visible_sprites, )
+            )
+
+    def trigger_death_particles(self, pos, particle_type):
+        self.animation_player.create_particles(particle_type, pos, (self.visible_sprites, ))
 
 
 class YSortCameraGroup(pygame.sprite.Group):

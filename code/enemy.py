@@ -31,7 +31,7 @@ class EnemyStatus(Enum):
 
 class Enemy(Entity):
 
-    def __init__(self, pos, enemy_type, damage_player, groups):
+    def __init__(self, pos, enemy_type, damage_player, trigger_death_particles, groups):
         self.status = EnemyStatus.IDLE
         self.enemy_type = enemy_type
         filename = os.path.join(self.get_graphics_path(), '0.png')
@@ -54,6 +54,7 @@ class Enemy(Entity):
         self.attack_time = None
         self.attack_cooldown = 400
         self.damage_player = damage_player
+        self.trigger_death_particles = trigger_death_particles
 
         # invincibility timer
         self.vulnerable = True
@@ -146,6 +147,7 @@ class Enemy(Entity):
     def check_death(self):
         if self.health <= 0:
             self.kill()
+            self.trigger_death_particles(self.rect.center, self.enemy_type.name)
 
     def hit_reaction(self):
         if not self.vulnerable:
