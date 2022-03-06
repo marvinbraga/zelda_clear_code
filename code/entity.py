@@ -1,5 +1,7 @@
 import pygame
 
+from code.settings import TILE_SIZE
+
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, pos, filename, groups):
@@ -12,6 +14,7 @@ class Entity(pygame.sprite.Sprite):
         self.hit_box_undo = None
         self.set_image(filename)
 
+        self.animations = {}
         self.index = 0
         self.animation_speed = 0.15
         self.direction = pygame.math.Vector2()
@@ -19,10 +22,12 @@ class Entity(pygame.sprite.Sprite):
     def set_image(self, filename):
         if filename:
             self.image = pygame.image.load(filename).convert_alpha()
-            self.rect = self.image.get_rect(topleft=self.pos)
-            self.hit_box = self.rect.inflate(-4, -26)
-            self.rect_undo = self.rect.copy()
-            self.hit_box_undo = self.hit_box.copy()
+        else:
+            self.image = pygame.Surface((TILE_SIZE, TILE_SIZE))
+        self.rect = self.image.get_rect(topleft=self.pos)
+        self.hit_box = self.rect.inflate(-4, -26)
+        self.rect_undo = self.rect.copy()
+        self.hit_box_undo = self.hit_box.copy()
         return self
 
     def update_undo(self):

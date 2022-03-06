@@ -2,9 +2,10 @@ from random import choice
 
 import pygame
 
+from code.enemy import Enemy, EnemyType
+from code.player_ui_data import PlayerUiData
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
-from code.player_ui_data import PlayerUiData
 from code.weapon import Weapon
 from player import Player
 from tile import Tile
@@ -33,6 +34,7 @@ class Level:
             "boundary": ImportCsvLayout.load("../map/map_FloorBlocks.csv"),
             "grass": ImportCsvLayout.load("../map/map_Grass.csv"),
             "object": ImportCsvLayout.load("../map/map_Objects.csv"),
+            "entities": ImportCsvLayout.load("../map/map_Entities.csv"),
         }
         graphics = {
             "grass": ImportFolder.load("../graphics/Grass"),
@@ -54,23 +56,27 @@ class Level:
                         elif style == "object":
                             surf = graphics["objects"][int(col)]
                             Tile((x, y), (self.visible_sprites, self.obstacle_sprites), 'object', surf)
-
-        self.player = Player(
-            (2000, 1430),
-            self.create_attack, self.destroy_attack,
-            self.create_magic, self.destroy_magic,
-            (self.visible_sprites,)
-        )
+                        elif style == "entities":
+                            if col == "394":
+                                self.player = Player(
+                                    (x, y),
+                                    self.create_attack, self.destroy_attack,
+                                    self.create_magic, self.destroy_magic,
+                                    (self.visible_sprites,)
+                                )
+                            else:
+                                Enemy((x, y), EnemyType.SQUID, (self.visible_sprites,))
 
     def run(self):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.check_tiles()
+        self.visible_sprites.enemy_update(self.player)
         self.ui.display(self.player)
 
     def create_attack(self):
-        self.current_attack = Weapon(self.player, (self.visible_sprites, ))
+        self.current_attack = Weapon(self.player, (self.visible_sprites,))
 
     def destroy_attack(self):
         if self.current_attack:
@@ -114,3 +120,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key=lambda spt: spt.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+
+    def enemy_update(self, player):
+        enemy_sprites = [sprite for sprite in self.sprites() if isinstance(sprite, Enemy)]
+        for enemy in enemy_sprites:
+            enemy.enemy_update(player)

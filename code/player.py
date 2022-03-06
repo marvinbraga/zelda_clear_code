@@ -11,9 +11,7 @@ from code.support import ImportFolder
 class Player(Entity):
     def __init__(self, pos, create_attack, destroy_attack, create_magic, destroy_magic, groups):
         super().__init__(pos, '../graphics/test/player.png', groups)
-        self.animations = {}
         self.status = PlayerStatusManager(self)
-
         self.import_player_assets()
 
         self.attacking = False
