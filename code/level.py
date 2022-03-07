@@ -3,6 +3,7 @@ from random import choice, randint
 import pygame
 
 from code.enemy import Enemy, EnemyType
+from code.magic import MagicPlayer
 from code.particles import AnimationPlayer
 from code.player_ui_data import PlayerUiData
 from code.settings import TILE_SIZE
@@ -35,6 +36,7 @@ class Level:
 
         # particles
         self.animation_player = AnimationPlayer()
+        self.magic_player = MagicPlayer(self.animation_player)
 
     def create_map(self):
         layouts = {
@@ -105,8 +107,11 @@ class Level:
         self.current_attack = None
 
     def create_magic(self, style, strength, cost):
-        print(f"style: {style}, strength: {strength}, cost: {cost}")
-        return self
+        if style == "heal":
+            self.magic_player.heal(self.player, strength, cost, (self.visible_sprites,))
+
+        if style == "flame":
+            self.magic_player.flame(self.player, cost, (self.visible_sprites, self.attack_sprites))
 
     def destroy_magic(self):
         pass

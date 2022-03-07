@@ -18,6 +18,10 @@ class PlayerStatusManager:
         self.down()
 
     @property
+    def direction(self):
+        return self.value.split("_")[0]
+
+    @property
     def value(self):
         return "_".join([str(status.value[1]) for status in self.status])
 
