@@ -31,7 +31,7 @@ class EnemyStatus(Enum):
 
 class Enemy(Entity):
 
-    def __init__(self, pos, enemy_type, damage_player, trigger_death_particles, groups):
+    def __init__(self, pos, enemy_type, damage_player, trigger_death_particles, add_exp, groups):
         self.status = EnemyStatus.IDLE
         self.enemy_type = enemy_type
         filename = os.path.join(self.get_graphics_path(), '0.png')
@@ -42,6 +42,7 @@ class Enemy(Entity):
         info = monster_data.get(self.enemy_type.name)
         self.health = info['health']
         self.exp = info['exp']
+        self.add_exp = add_exp
         self.speed = info['speed']
         self.damage = info['damage']
         self.resistance = info['resistance']
@@ -148,6 +149,7 @@ class Enemy(Entity):
         if self.health <= 0:
             self.kill()
             self.trigger_death_particles(self.rect.center, self.enemy_type.name)
+            self.add_exp(self.exp)
 
     def hit_reaction(self):
         if not self.vulnerable:

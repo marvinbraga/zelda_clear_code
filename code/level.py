@@ -8,6 +8,7 @@ from code.particles import AnimationPlayer
 from code.player_ui_data import PlayerUiData
 from code.settings import TILE_SIZE
 from code.support import ImportCsvLayout, ImportFolder
+from code.upgrade import Upgrade
 from code.weapon import Weapon
 from player import Player
 from tile import Tile
@@ -19,6 +20,7 @@ class Level:
         # get the display surface
         self.player = None
         self.display_surface = pygame.display.get_surface()
+        self.game_paused = False
 
         # sprite group setup
         self.visible_sprites = YSortCameraGroup()
@@ -33,6 +35,7 @@ class Level:
 
         # user interface
         self.ui = PlayerUiData()
+        self.upgrade = Upgrade(self.player)
 
         # particles
         self.animation_player = AnimationPlayer()
@@ -86,17 +89,29 @@ class Level:
                                 }[col]
                                 Enemy(
                                     (x, y), enemy_type, self.damage_player, self.trigger_death_particles,
-                                    (self.visible_sprites, self.attackable_sprites)
+                                    self.add_exp, (self.visible_sprites, self.attackable_sprites)
                                 )
 
+    def add_exp(self, amount):
+        self.player.exp += amount
+
+    def toggle_menu(self):
+        self.game_paused = not self.game_paused
+
     def run(self):
-        # update and draw the game
         self.visible_sprites.custom_draw(self.player)
+        self.ui.display(self.player)
+
+        if self.game_paused:
+            self.upgrade.display()
+        else:
+            self.update_game()
+
+    def update_game(self):
         self.visible_sprites.update()
         self.check_tiles()
         self.visible_sprites.enemy_update(self.player)
         self.player_attack_logic()
-        self.ui.display(self.player)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, (self.visible_sprites, self.attack_sprites))
