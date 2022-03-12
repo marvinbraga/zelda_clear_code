@@ -32,7 +32,8 @@ class MagicPlayer:
             else:
                 direction = pygame.math.Vector2(0, 1)
 
-            for i in range(1, 7):
+            total_magics = 5
+            for i in range(1, total_magics + 1):
                 if direction.x:  # horizontal
                     offset_x = (direction.x * i) * TILE_SIZE
                     x = player.rect.centerx + offset_x + randint(-TILE_SIZE // 3, TILE_SIZE // 3)
